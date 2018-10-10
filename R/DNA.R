@@ -282,15 +282,29 @@ as.DNAbin <- function(x, ...) UseMethod("as.DNAbin")
            48, 224, 176, 208, 112, 240, 4, 2)
 
 ## by Klaus:
+
 as.DNAbin.character <- function(x, ...)
 {
-    ans <- as.raw(._bs_)[match(tolower(x), ._cs_)]
-    if (is.matrix(x)) {
-        dim(ans) <- dim(x)
-        dimnames(ans) <- dimnames(x)
-    }
-    class(ans) <- "DNAbin"
-    ans
+  x <- t(x)
+  lenn <- length(x)
+  floormax <- floor(lenn/1000000000)
+  count <- 0
+  bigVec <- c()
+  while(floormax > 0){
+    cc <- as.raw(._bs_)[match(x[(1+count):(1000000000+count)], ._cs_)]
+    count <- count+1000000000
+    floormax <- floormax-1
+    bigVec <- c(bigVec,cc)
+  }
+  cc <- as.raw(._bs_)[match(x[(1+count):lenn], ._cs_)]
+  bigVec <- c(bigVec,cc)
+  ans <- bigVec
+  if (is.matrix(x)) {
+    dim(ans) <- dim(x)
+    dimnames(ans) <- dimnames(x)
+  }
+  class(ans) <- "DNAbin"
+  ans
 }
 
 as.DNAbin.alignment <- function(x, ...)
